@@ -7,60 +7,58 @@ from curses import (textpad, curs_set, KEY_RIGHT,
 					KEY_LEFT, KEY_DOWN, KEY_UP, 
 					wrapper, COLOR_RED)
 
-####################### start advanced config #########################
-## return the spead counter
-return_the_spead_counter=True
+# return the spead counter
+return_the_spead_counter = True
 
-## box_ul x, y
+# box_ul x, y
 box_size_ul_y = 2
 box_size_ul_x = 2
 
-## box_dr x, y
+# box_dr x, y
 box_size_dr_y = 2
 box_size_dr_x = 2
 
-## Self collision
+# Self collision
 self_collision = False
-####################### end advanced config ###########################
 
-## this is time in head window
+# this is time in head window
 all_time = strftime('%l: %M: %S')
 
-## this is head for snake
+# this is head for snake
 head_snake = ''
 
-## this is Spead for snake
+# this is Spead for snake
 try:
 	spead = int(argv[1])
 except:
 	spead = 25
 
-## this is countery for spead = spead - count
+# this is countery for spead = spead - count
 snake_count = 0
 
-## o,clock icon
+# o,clock icon
 o_clock_icon = ''
 
-## food icon
+# food icon
 food_icon = ''
 
-## spead icon
+# spead icon
 spead_icon = ''
 
-## snake len icon
+# snake len icon
 snake_len_icon = ""
 
-## tab betwen icon and items
+# tab betwen icon and items
 tab_space = 2
 
-## this is a food for snake
+# food icons
 head_food = ('', '☘', '⬢', '♣', '♠')
 
 is_live = True
 
-
 def create_food(snake, box):
 	"""Simple function to find coordinates of food which is inside box and not on snake body"""
+	
 	food = None
 	while food is None:
 		food = [randint(box[0][0] + 5, box[1][0] - 5),
@@ -110,52 +108,50 @@ def create_new_head(head, direction):
 def main(stdscr):
 	global is_live
 
-	## initial settings
+	# initial settings
 	curs_set(0)
 
 	stdscr.nodelay(0)
 	stdscr.timeout(100)
 
-	## Create a game box
-	# sh = screen height
-	# sw = screen width
+	# Create a game box
 	sh, sw = stdscr.getmaxyx()
 	box = ((box_size_ul_y, box_size_ul_x), 
 		   (sh - box_size_dr_y, sw - box_size_dr_x))
 
 	textpad.rectangle(stdscr, box[0][0], box[0][1], box[1][0], box[1][1])
 	
-	## create snake and set initial direction
+	# create snake and set initial direction
 	snake = [[sh // 2, sw // 2 + 1],
 			[sh // 2, sw // 2],
 			[sh // 2, sw // 2 - 1]]
 
 	direction = KEY_RIGHT
 
-	## this spead for snake
+	# this spead for snake
 	timer = spead
 
 	score = 0
 
-	## Create startup food
+	# Create startup food
 	food = start_new_food(stdscr, snake, box)
 
-	## print result of game
+	# print result of game
 	stdscr.addstr(1, sw // 2 - len(new_score_text(timer, score)) // 2, new_score_text(timer, score))
 
 	while True:
 		try:
-			## non-blocking input
+			# non-blocking input
 			key = stdscr.getch()
 		except KeyboardInterrupt:
 			print("Good Bay!")
 			exit(1)
 
-		## find next position of snake head
+		# find next position of snake head
 		head = snake[0]
 
 		if (is_live):
-			## set direction if user pressed any arrow key
+			# set direction if user pressed any arrow key
 			if key in (KEY_DOWN, KEY_UP) and score > 0:
 				stdscr.timeout(timer + timer)
 
@@ -167,11 +163,11 @@ def main(stdscr):
 
 			new_head = create_new_head(head, direction)
 
-			## insert and print new head
+			# insert and print new head
 			stdscr.addstr(new_head[0], new_head[1], head_snake)
 			snake.insert(0, new_head)
 			
-			## if sanke head is on food
+			# if sanke head is on food
 			if snake[0] == food:
 				## update score
 				score += 1
@@ -181,29 +177,28 @@ def main(stdscr):
 
 				stdscr.addstr(1, sw // 2 - len(new_score_text(timer, score)) // 2, new_score_text(timer, score))
 
-				## create new food
+				# create new food
 				food = start_new_food(stdscr, snake, box)
 			else:
-				## shift snake's tail
+				# shift snake's tail
 				stdscr.addstr(snake[-1][0], snake[-1][1], ' ')
 				snake.pop()
 
-		## conditions for game over
+		# conditions for game over
 		if (snake[0][0] in (box[0][0], box[1][0]) or
 			snake[0][1] in (box[0][1], box[1][1])):
 			msg = "Game Over!\nPresse [Ctrl+C] to Quit."
 
 			stdscr.addstr(sh // 2, sw // 2, msg)
-			# stdscr.nodelay(0)
 			is_live = False
 
 		elif self_collision and snake[0] in snake[1:]:
 			msg = "Self Collision!\nPresse [Ctrl+C] to Quit."
 
 			stdscr.addstr(sh // 2, sw // 2 // 2, msg)
-			# stdscr.nodelay(0)
 			is_live = False
 
 if __name__ == "__main__":
-	sleep(0.1) ## for tilix terminal full-screen enable
+	# Uncomment this if you'r using Tilix Terminal with full-screen option
+	#sleep(0.3)
 	wrapper(main)
